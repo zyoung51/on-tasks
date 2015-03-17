@@ -18,9 +18,9 @@
   },
   "homepage": "https://github.com/renasar/renasar-tasks",
   "dependencies": {
-    "di": "git+ssh://git@github.com/renasar/di.js.git",
+    "di": "git+ssh://git@github.com/renasar/di.js.git#emc-2015-03-16",
     "lodash": "^2.4.1",
-    "renasar-core": "git+ssh://git@github.com/renasar/renasar-core.git",
+    "renasar-core": "git+ssh://git@github.com/renasar/renasar-core.git#emc-2015-03-16",
     "xml2js": "^0.4.4"
   },
   "devDependencies": {
