@@ -38,7 +38,7 @@ describe('Install OS Job', function () {
                 profile: 'testprofile',
                 completionUri: 'esx-ks',
                 version: '7.0',
-                repo: 'http://127.0.0.1:8080/myrepo/7.0/x86_64',
+                repo: 'http://127.0.0.1:8080/myrepo/7.0/x86_64/',
                 rootPassword: 'rackhd',
                 rootSshKey: null,
                 users: [
@@ -86,6 +86,10 @@ describe('Install OS Job', function () {
         expect(job.options.dnsServers).to.have.length(0);
     });
 
+    it("should convert the repo to correct format", function() {
+        expect(job.options.repo).to.equal('http://127.0.0.1:8080/myrepo/7.0/x86_64');
+    });
+
     it("should set up message subscribers", function(done) {
         var cb;
         job._preHandling = sinon.stub().resolves();
@@ -110,45 +114,22 @@ describe('Install OS Job', function () {
         });
     });
 
-    it("should fetch correct ESXi options from external repository (upper case)", function(done) {
+    it("should fetch correct ESXi options from external repository", function() {
         var repo = 'http://abc.xyz/repo/test';
         job.options.completionUri = 'esx-ks';
         job.options.repo = repo;
 
-        job._downloadEsxBootCfg = sinon.stub().resolves({
-            data: 'bootstate=0\ntitle=Loading ESXi installer\n' +
-                       'kernel=/tBoot.b00\nkernelopt=runweasel\n' +
-                       'modules=/b.b00 --- /jumpSTRt.gz --- /useropts.gz\nbuild=\nupdated=0',
-            upperCase: true
-        });
-        job._preHandling().then(function() {
-            expect(job.options.mbootFile).to.equal(repo + '/MBOOT.C32');
-            expect(job.options.tbootFile).to.equal(repo + '/TBOOT.B00');
-            expect(job.options.moduleFiles).to.equal(repo + '/B.B00 --- ' + repo +
-                                                     '/JUMPSTRT.GZ --- ' + repo +
-                                                     '/USEROPTS.GZ');
-            done();
-        });
-    });
-
-    it("should fetch correct ESXi options from external repository (lower case)", function(done) {
-        var repo = 'http://abc.xyz/repo/test';
-        job.options.completionUri = 'esx-ks';
-        job.options.repo = repo;
-
-        job._downloadEsxBootCfg = sinon.stub().resolves({
-            data: 'bootstate=0\ntitle=Loading ESXi installer\n' +
-                       'kernel=/tBoot.b00\nkernelopt=runweasel\n' +
-                       'modules=/b.b00 --- /jumpSTRt.gz --- /useropts.gz\nbuild=\nupdaTEd=0',
-            upperCase: false
-        });
-        job._preHandling().then(function() {
+        job._downloadEsxBootCfg = sinon.stub().resolves(
+            'bootstate=0\ntitle=Loading ESXi installer\n' +
+            'kernel=/tBoot.b00\nkernelopt=runweasel\n' +
+            'modules=/b.b00 --- /jumpSTRt.gz --- /useropts.gz\nbuild=\nupdaTEd=0'
+        );
+        return job._preHandling().then(function() {
             expect(job.options.mbootFile).to.equal(repo + '/mboot.c32');
             expect(job.options.tbootFile).to.equal(repo + '/tboot.b00');
             expect(job.options.moduleFiles).to.equal(repo + '/b.b00 --- ' + repo +
                                                      '/jumpstrt.gz --- ' + repo +
                                                      '/useropts.gz');
-            done();
         });
     });
  });
